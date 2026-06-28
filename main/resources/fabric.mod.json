@@ -19,7 +19,7 @@
 			"com.example.TemplateMod"
 		],
 		"client": [
-			"com.example.client.TemplateModClient"
+			"com.example.client.InventorySortModClient"
 		]
 	},
 	"mixins": [
