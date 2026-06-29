@@ -1,8 +1,10 @@
 package com.example.client;
 
+import com.example.LockTogglePayload;
+import com.example.ModComponents;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
@@ -45,16 +47,15 @@ public class InventorySortModClient implements ClientModInitializer {
 		ScreenEvents.AFTER_INIT.register(((client, screen, scaledWidth, scaledHeight) -> {
 			if (screen instanceof GenericContainerScreen containerScreen){
 				ScreenKeyboardEvents.afterKeyPress(screen).register((scr,keyInput) -> {
+					ScreenHandler handler = containerScreen.getScreenHandler();
 					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0){
-						ScreenHandler handler = containerScreen.getScreenHandler();
 						moveIntoInventory(client,handler);
 					}
 					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0){
-						ScreenHandler handler = containerScreen.getScreenHandler();
 						moveIntoChest(client,handler);
 					}
 					if (keyInput.key() ==  KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()){
-						toggleLock(containerScreen);
+						toggleLock(containerScreen, handler);
 					}
 				});
 			}
@@ -116,16 +117,13 @@ public class InventorySortModClient implements ClientModInitializer {
 	}
 
 
-	private void toggleLock(HandledScreen<?> screen){
+	private void toggleLock(HandledScreen<?> screen, ScreenHandler handler){
 		Slot hovered = screen.focusedSlot;
 
 		if (hovered == null || hovered.getStack().isEmpty()){
 			return;
 		}
-		ItemStack stack = hovered.getStack();
-		boolean currentlyLocked = stack.getOrDefault(ModComponents.LOCKED,false);
 
-		stack.set(ModComponents.LOCKED, !currentlyLocked);
-		System.out.println("Item locked = " + !currentlyLocked);
+		ClientPlayNetworking.send(new LockTogglePayload(handler.syncId, hovered.id));
 	}
 }

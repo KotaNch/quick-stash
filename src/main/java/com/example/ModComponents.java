@@ -1,4 +1,4 @@
-package com.example.client;
+package com.example;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.component.ComponentType;
