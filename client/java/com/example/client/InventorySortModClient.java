@@ -45,15 +45,15 @@ public class InventorySortModClient implements ClientModInitializer {
 		ScreenEvents.AFTER_INIT.register(((client, screen, scaledWidth, scaledHeight) -> {
 			if (screen instanceof GenericContainerScreen containerScreen){
 				ScreenKeyboardEvents.afterKeyPress(screen).register((scr,keyInput) -> {
-					if (keyInput.key() == moveKeyBinding.getDefaultKey().getCode()  && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0){
+					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0){
 						ScreenHandler handler = containerScreen.getScreenHandler();
 						moveIntoInventory(client,handler);
 					}
-					if (keyInput.key() == moveKeyBinding.getDefaultKey().getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0){
+					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0){
 						ScreenHandler handler = containerScreen.getScreenHandler();
 						moveIntoChest(client,handler);
 					}
-					if (keyInput.key() == lockKeyBinding.getDefaultKey().getCode()){
+					if (keyInput.key() ==  KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()){
 						toggleLock(containerScreen);
 					}
 				});
@@ -111,7 +111,6 @@ public class InventorySortModClient implements ClientModInitializer {
 					SlotActionType.QUICK_MOVE,
 					client.player
 			);
-			System.out.println("slot number: " + i);
 		}
 
 	}
