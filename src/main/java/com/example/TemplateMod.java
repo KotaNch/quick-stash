@@ -20,6 +20,8 @@ public class TemplateMod implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Hello Fabric world!");
 
+		ModComponents.init();
+
 		PayloadTypeRegistry.playC2S().register(LockTogglePayload.ID, LockTogglePayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(LockTogglePayload.ID, ((payload, context) -> {

@@ -31,8 +31,6 @@ public class InventorySortModClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ModComponents.LOCKED.toString(); //init kostil TODO: normal init
-
 		moveKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.inventory-sort-mod.move",
 				InputUtil.Type.KEYSYM,

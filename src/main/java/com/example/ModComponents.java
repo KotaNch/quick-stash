@@ -17,4 +17,7 @@ public class ModComponents {
                     .packetCodec(PacketCodecs.BOOLEAN)
                     .build()
     );
+
+    public  static void init(){
+    }
 }
