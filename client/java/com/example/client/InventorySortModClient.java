@@ -8,10 +8,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
@@ -47,22 +44,37 @@ public class InventorySortModClient implements ClientModInitializer {
 				CATEGORY
 		));
 
-		ScreenEvents.AFTER_INIT.register(((client, screen, scaledWidth, scaledHeight) -> {
-			if (screen instanceof HandledScreen<?>  containerScreen && !(screen instanceof InventoryScreen) && !(screen instanceof CreativeInventoryScreen)){
-				ScreenKeyboardEvents.afterKeyPress(screen).register((scr,keyInput) -> {
-					ScreenHandler handler = containerScreen.getScreenHandler();
-					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0){
-						moveIntoInventory(client,handler);
+		ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+
+			if (screen instanceof HandledScreen<?> handledScreen) {
+
+				ScreenKeyboardEvents.afterKeyPress(screen).register((scr, keyInput) -> {
+
+					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()) {
+						ScreenHandler handler = handledScreen.getScreenHandler();
+						toggleLockIfPlayerSlot(handledScreen, handler);
 					}
-					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode() && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0){
-						moveIntoChest(client,handler);
-					}
-					if (keyInput.key() ==  KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()){
-						toggleLock(containerScreen, handler);
+
+					boolean isAllowedContainer = screen instanceof GenericContainerScreen
+							|| screen instanceof ShulkerBoxScreen
+							|| screen instanceof HopperScreen
+							|| screen instanceof Generic3x3ContainerScreen;
+
+					if (isAllowedContainer) {
+						ScreenHandler handler = handledScreen.getScreenHandler();
+
+						if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+								&& (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0) {
+							moveIntoInventory(client, handler);
+						}
+						if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+								&& (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0) {
+							moveIntoChest(client, handler);
+						}
 					}
 				});
 			}
-		}));
+		});
 	}
 
 	private void moveIntoChest(MinecraftClient client, ScreenHandler handler){
@@ -142,11 +154,14 @@ public class InventorySortModClient implements ClientModInitializer {
 
 	}
 
-
-	private void toggleLock(HandledScreen<?> screen, ScreenHandler handler){
+	private void toggleLockIfPlayerSlot(HandledScreen<?> screen, ScreenHandler handler){
 		Slot hovered = screen.focusedSlot;
 
 		if (hovered == null || hovered.getStack().isEmpty()){
+			return;
+		}
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (!(hovered.inventory == client.player.getInventory())){
 			return;
 		}
 
