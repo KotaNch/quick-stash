@@ -1,0 +1,8 @@
+{
+  "sources": [
+    { "type": "single", "resource": "inventory-sort-mod:gui/star_bg" },
+    { "type": "single", "resource": "inventory-sort-mod:gui/star_icon" },
+    { "type": "single", "resource": "inventory-sort-mod:gui/lock_bg" },
+    { "type": "single", "resource": "inventory-sort-mod:gui/lock_icon" }
+  ]
+}
