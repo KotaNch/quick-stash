@@ -40,7 +40,12 @@ public class TemplateMod implements ModInitializer {
 				return;
 			}
 			boolean currentlyLocked = stack.getOrDefault(ModComponents.LOCKED,false);
-			stack.set(ModComponents.LOCKED, !currentlyLocked);
+			if (currentlyLocked){
+				stack.remove(ModComponents.LOCKED);
+			}
+			else{
+				stack.set(ModComponents.LOCKED, true);
+			}
 		}));
 	}
 
