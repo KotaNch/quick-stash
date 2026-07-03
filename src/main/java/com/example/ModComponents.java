@@ -14,7 +14,11 @@ public class ModComponents {
             Identifier.of("inventory-sort-mod", "locked"),
             ComponentType.<Boolean>builder()
                     .codec(Codec.BOOL)
+                    //? if >=1.21.4 {
                     .packetCodec(PacketCodecs.BOOLEAN)
+                    //?} else {
+                    /*.packetCodec(PacketCodecs.BOOL)
+                     *///?}
                     .build()
     );
 

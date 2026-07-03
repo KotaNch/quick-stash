@@ -1,9 +1,10 @@
 plugins {
+	id "dev.kikugie.stonecutter"
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 }
 
-version = project.mod_version
+version = "${project.mod_version}+${stonecutter.current.version}"
 group = project.maven_group
 
 repositories {
@@ -16,7 +17,7 @@ repositories {
 
 loom {
 	splitEnvironmentSourceSets()
-	accessWidenerPath = file("src/main/resources/inventory-sort-mod.accesswidener")
+	accessWidenerPath = rootProject.file("src/main/resources/inventory-sort-mod.accesswidener")
 	mods {
 		"quick-stash" {
 			sourceSet sourceSets.main
@@ -27,7 +28,7 @@ loom {
 
 dependencies {
 	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	minecraft "com.mojang:minecraft:${stonecutter.current.version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
@@ -38,9 +39,9 @@ dependencies {
 processResources {
 	def version = project.version
 	inputs.property "version", version
-
+	inputs.property "minecraft_dependency", project.minecraft_dependency
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand "version": version, "minecraft_dependency": project.minecraft_dependency
 	}
 }
 

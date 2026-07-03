@@ -20,7 +20,11 @@ public class ScreenHandlerMixin {
         ScreenHandler self = (ScreenHandler) (Object) this;
 
         int totalSlots = self.slots.size();
+        //? if >=1.21.5 {
         int playerInvSize = player.getInventory().getMainStacks().size();
+        //?} else {
+        /*int playerInvSize = player.getInventory().main.size();
+        *///?}
         int firstPlayerSlot = totalSlots - playerInvSize;
 
         for (int i = 0; i < firstPlayerSlot; i++){

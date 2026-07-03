@@ -23,8 +23,11 @@ import java.util.List;
 
 public class InventorySortModClient implements ClientModInitializer {
 
-
+	//? if >=1.21.9 {
 	public static final KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of("inventory-sort-mod", "main"));
+	//?} else {
+	/*public static final String CATEGORY = "key.category.inventory-sort-mod.main";
+	 *///?}
 	public static KeyBinding moveKeyBinding;
 	public static KeyBinding lockKeyBinding;
 
@@ -48,9 +51,63 @@ public class InventorySortModClient implements ClientModInitializer {
 
 			if (screen instanceof HandledScreen<?> handledScreen) {
 
-				ScreenKeyboardEvents.afterKeyPress(screen).register((scr, keyInput) -> {
+				//? if <1.21.6 {
+				/*ScreenEvents.afterRender(screen).register((scr, context, mouseX2, mouseY2, tickDelta) -> {
+					context.draw();
+					context.getMatrices().push();
+					context.getMatrices().translate(0, 0, 300);
+					int guiX = handledScreen.x;
+					int guiY = handledScreen.y;
+					for (Slot slot : handledScreen.getScreenHandler().slots) {
+						ItemStack stack = slot.getStack();
+						if (stack.isEmpty()) continue;
+						if (!stack.getOrDefault(ModComponents.LOCKED, false)) continue;
 
-					if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()) {
+						//? if >=1.21.4 {
+						context.drawGuiTexture(net.minecraft.client.render.RenderLayer::getGuiTextured,
+								Identifier.of("inventory-sort-mod", "gui/lock_icon"),
+								guiX + slot.x - 10, guiY + slot.y - 10, 18, 16);
+						//?} else {
+						/^context.drawGuiTexture(
+								Identifier.of("inventory-sort-mod", "gui/lock_icon"),
+								guiX + slot.x - 10, guiY + slot.y - 10, 18, 16);
+						^///?}
+					}
+					context.getMatrices().pop();
+					context.draw();
+				});
+				*///?}
+
+				//? if >=1.21.9 {
+            ScreenKeyboardEvents.afterKeyPress(screen).register((scr, keyInput) -> {
+
+                if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()) {
+                    ScreenHandler handler = handledScreen.getScreenHandler();
+                    toggleLockIfPlayerSlot(handledScreen, handler);
+                }
+
+                boolean isAllowedContainer = screen instanceof GenericContainerScreen
+                        || screen instanceof ShulkerBoxScreen
+                        || screen instanceof HopperScreen
+                        || screen instanceof Generic3x3ContainerScreen;
+
+                if (isAllowedContainer) {
+                    ScreenHandler handler = handledScreen.getScreenHandler();
+
+                    if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+                            && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0) {
+                        moveIntoInventory(client, handler);
+                    }
+                    if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+                            && (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0) {
+                        moveIntoChest(client, handler);
+                    }
+                }
+            });
+            //?} else {
+				/*ScreenKeyboardEvents.afterKeyPress(screen).register((scr, key, scancode, modifiers) -> {
+
+					if (key == KeyBindingHelper.getBoundKeyOf(lockKeyBinding).getCode()) {
 						ScreenHandler handler = handledScreen.getScreenHandler();
 						toggleLockIfPlayerSlot(handledScreen, handler);
 					}
@@ -63,23 +120,28 @@ public class InventorySortModClient implements ClientModInitializer {
 					if (isAllowedContainer) {
 						ScreenHandler handler = handledScreen.getScreenHandler();
 
-						if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
-								&& (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0) {
+						if (key == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+								&& (modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
 							moveIntoInventory(client, handler);
 						}
-						if (keyInput.key() == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
-								&& (keyInput.modifiers() & GLFW.GLFW_MOD_SHIFT) == 0) {
+						if (key == KeyBindingHelper.getBoundKeyOf(moveKeyBinding).getCode()
+								&& (modifiers & GLFW.GLFW_MOD_SHIFT) == 0) {
 							moveIntoChest(client, handler);
 						}
 					}
 				});
+				*///?}
 			}
 		});
 	}
 
 	private void moveIntoChest(MinecraftClient client, ScreenHandler handler){
 		int totalSlots = handler.slots.size();
+		//? if >=1.21.5 {
 		int playerInvSize = client.player.getInventory().getMainStacks().size();
+		//?} else {
+		/*int playerInvSize = client.player.getInventory().main.size();
+		 *///?}
 		int firstPlslot = totalSlots - playerInvSize;
 
 		List<Slot> playerSlots = new ArrayList<>();
@@ -101,8 +163,13 @@ public class InventorySortModClient implements ClientModInitializer {
 				return  -1;
 			}
 
+			//? if >=1.21.4 {
 			String nameA = stackA.getItemName().toString();
 			String nameB = stackB.getItemName().toString();
+			//?} else {
+			/*String nameA = stackA.getName().getString();
+			String nameB = stackB.getName().getString();
+			*///?}
 			return nameA.compareTo(nameB);
 		});
 
@@ -118,7 +185,6 @@ public class InventorySortModClient implements ClientModInitializer {
 				continue;
 			}
 
-
 			client.interactionManager.clickSlot(
 					handler.syncId,
 					slot.id,
@@ -126,14 +192,16 @@ public class InventorySortModClient implements ClientModInitializer {
 					SlotActionType.QUICK_MOVE,
 					client.player
 			);
-
-
 		}
 	}
 
 	private void moveIntoInventory(MinecraftClient client, ScreenHandler handler){
 		int totalSlots = handler.slots.size();
-		int chestInvSize = totalSlots- client.player.getInventory().getMainStacks().size();
+		//? if >=1.21.5 {
+		int chestInvSize = totalSlots - client.player.getInventory().getMainStacks().size();
+		//?} else {
+		/*int chestInvSize = totalSlots - client.player.getInventory().main.size();
+		 *///?}
 
 		for (int i = chestInvSize-1; i>= 0;i --){
 			Slot slot = handler.slots.get(i);
@@ -151,7 +219,6 @@ public class InventorySortModClient implements ClientModInitializer {
 					client.player
 			);
 		}
-
 	}
 
 	private void toggleLockIfPlayerSlot(HandledScreen<?> screen, ScreenHandler handler){
